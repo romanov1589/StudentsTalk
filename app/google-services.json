@@ -1,0 +1,59 @@
+{
+  "project_info": {
+    "project_number": "499872998999",
+    "firebase_url": "https://studentstalk-c827c.firebaseio.com",
+    "project_id": "studentstalk-c827c",
+    "storage_bucket": "studentstalk-c827c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:499872998999:android:053b8a4bc664b196",
+        "android_client_info": {
+          "package_name": "pl.romanov.s14048.studentstalk"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "499872998999-4ktpmhs8qusjrld9en94pdghkch1qhmq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "pl.romanov.s14048.studentstalk",
+            "certificate_hash": "c0dd1b1a204689891ab85bc0d4a9b57e74af4327"
+          }
+        },
+        {
+          "client_id": "499872998999-ebcpnmdo7782e8nlfmfrdq6olpv2n7kl.apps.googleusercontent.com",
+          "client_type": 3
+        },
+        {
+          "client_id": "499872998999-ebcpnmdo7782e8nlfmfrdq6olpv2n7kl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCn0v1ephVGlytwVzZfGyl3VHMvr0COfdc"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "499872998999-ebcpnmdo7782e8nlfmfrdq6olpv2n7kl.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
