@@ -1,7 +1,10 @@
 package pl.romanov.s14048.studentstalk;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -11,6 +14,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.theartofdev.edmodo.cropper.CropImage;
+import com.theartofdev.edmodo.cropper.CropImageView;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -21,6 +26,8 @@ public class SettingsActivity extends AppCompatActivity {
     private TextView settingsDisplayStatus;
     private Button settingsChangeProfileImageButton;
     private Button settingsChangeStatusButton;
+
+    private final static int galleryPick = 1;
 
     private DatabaseReference getUserDataReference;
     private FirebaseAuth mAuth;
@@ -60,5 +67,28 @@ public class SettingsActivity extends AppCompatActivity {
 
             }
         });
+
+        settingsChangeProfileImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent galleryIntent = new Intent();
+                galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
+                galleryIntent.setType("image/*");
+                startActivityForResult(galleryIntent, galleryPick);
+            }
+        });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == galleryPick && resultCode==RESULT_OK && data!=null){
+            Uri imageUri = data.getData();
+            CropImage.activity()
+                    .setGuidelines(CropImageView.Guidelines.ON)
+                    .setAspectRatio(1,1)
+                    .start(this);
+        }
     }
 }
