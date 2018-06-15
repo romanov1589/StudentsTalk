@@ -20,12 +20,14 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Logger;
 
 public class RegisterActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
+    private DatabaseReference storeUserDefaultDataReference;
 
     private Toolbar mToolbar;
     private ProgressDialog loadingBar;
@@ -56,7 +58,7 @@ public class RegisterActivity extends AppCompatActivity {
         createAccountButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String name = registerUserName.getText().toString();
+                final String name = registerUserName.getText().toString();
                 String email = registerUserEmail.getText().toString();
                 String password = registerUserPassword.getText().toString();
 
@@ -65,7 +67,7 @@ public class RegisterActivity extends AppCompatActivity {
         });
     }
 
-    private void RegisterAccount(String name, String email, String password) {
+    private void RegisterAccount(final String name, String email, String password) {
         if(TextUtils.isEmpty(name)){
             Toast.makeText(RegisterActivity.this, "Please write your name", Toast.LENGTH_LONG).show();
         }
@@ -85,10 +87,25 @@ public class RegisterActivity extends AppCompatActivity {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     if(task.isSuccessful()){
-                        Intent mainIntent = new Intent(RegisterActivity.this, MainActivity.class);
-                        mainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                        startActivity(mainIntent);
-                        finish();
+                        String currentUserId = mAuth.getCurrentUser().getUid();
+                        storeUserDefaultDataReference = FirebaseDatabase.getInstance().
+                                getReference().child("Users").child(currentUserId);
+
+                        storeUserDefaultDataReference.child("user_name").setValue(name);
+                        storeUserDefaultDataReference.child("user_status").setValue("Hey there, I am using StudentsTalk");
+                        storeUserDefaultDataReference.child("user_image").setValue("default_profile");
+                        storeUserDefaultDataReference.child("user_thumb_image").setValue("default_image")
+                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        if(task.isSuccessful()){
+                                            Intent mainIntent = new Intent(RegisterActivity.this, MainActivity.class);
+                                            mainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                            startActivity(mainIntent);
+                                            finish();
+                                        }
+                                    }
+                                });
                     }
                     else{
                         Toast.makeText(RegisterActivity.this, "Error Occured, Try Again...",
