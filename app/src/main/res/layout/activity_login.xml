@@ -12,7 +12,7 @@
     </include>
 
     <EditText
-        android:id="@+id/editText4"
+        android:id="@+id/login_email"
         android:layout_width="360dp"
         android:layout_height="60dp"
         android:layout_alignParentTop="true"
@@ -20,11 +20,11 @@
         android:layout_marginTop="200dp"
         android:ems="10"
         android:hint="Email"
-        android:inputType="textMultiLine"
+        android:inputType="textMultiLine|textEmailAddress"
         android:padding="15dp" />
 
     <EditText
-        android:id="@+id/editText5"
+        android:id="@+id/login_password"
         android:layout_width="360dp"
         android:layout_height="60dp"
         android:layout_alignParentBottom="true"
@@ -32,11 +32,11 @@
         android:layout_marginBottom="231dp"
         android:ems="10"
         android:hint="Password"
-        android:inputType="textMultiLine"
+        android:inputType="textMultiLine|textPassword"
         android:padding="15dp" />
 
     <Button
-        android:id="@+id/button3"
+        android:id="@+id/login_button"
         android:layout_width="320dp"
         android:layout_height="50dp"
         android:layout_alignParentBottom="true"
