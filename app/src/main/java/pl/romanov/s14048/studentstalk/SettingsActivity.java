@@ -198,10 +198,6 @@ public class SettingsActivity extends AppCompatActivity {
                                     }
                                 }
                             });
-
-
-
-
                         }else{
                             Toast.makeText(SettingsActivity.this, "Error ocured, while uploading your Profile Pic",
                                     Toast.LENGTH_SHORT).show();
