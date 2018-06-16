@@ -35,10 +35,11 @@
             android:theme="@style/Base.Theme.AppCompat" />
         <activity
             android:name=".StatusActivity"
-            android:parentActivityName=".SettingsActivity"></activity>
-        <activity android:name=".AllUsersActivity"
-            android:parentActivityName=".MainActivity">
-        </activity>
+            android:parentActivityName=".SettingsActivity" />
+        <activity
+            android:name=".AllUsersActivity"
+            android:parentActivityName=".MainActivity"></activity>
+        <activity android:name=".ProfileActivity"></activity>
     </application>
 
 </manifest>
