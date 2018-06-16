@@ -97,7 +97,7 @@ public class AllUsersActivity extends AppCompatActivity {
 
         public void setUser_thumb_image(Context ctx, String user_thumb_image){
             CircleImageView thumb_image = (CircleImageView) mView.findViewById(R.id.all_users_profile_image);
-            Picasso.with(ctx).load(user_thumb_image).into(thumb_image);
+            Picasso.with(ctx).load(user_thumb_image).placeholder(R.drawable.default_profile_image).into(thumb_image);
         }
     }
 }
