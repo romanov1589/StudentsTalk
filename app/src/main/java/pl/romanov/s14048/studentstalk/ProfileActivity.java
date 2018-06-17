@@ -94,6 +94,23 @@ public class ProfileActivity extends AppCompatActivity {
                                       }
                                   }
                               }
+                              else{
+                                  friendsReference.child(senderUserId)
+                                          .addListenerForSingleValueEvent(new ValueEventListener() {
+                                              @Override
+                                              public void onDataChange(DataSnapshot dataSnapshot) {
+                                                  if(dataSnapshot.hasChild(receiverUserId)){
+                                                      CURRENT_STATE = "friends";
+                                                      sendFriendRequestButton.setText("Unfriend");
+                                                  }
+                                              }
+
+                                              @Override
+                                              public void onCancelled(DatabaseError databaseError) {
+
+                                              }
+                                          });
+                              }
                             }
 
                             @Override
@@ -109,22 +126,53 @@ public class ProfileActivity extends AppCompatActivity {
             }
         });
 
-        sendFriendRequestButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                 sendFriendRequestButton.setEnabled(false);
+        if(!senderUserId.equals(receiverUserId)){
+            sendFriendRequestButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    sendFriendRequestButton.setEnabled(false);
 
-                 if(CURRENT_STATE.equals("not_friends")){
-                     sendFriendRequestToPerson();
-                 }
-                 if(CURRENT_STATE.equals("request_sent")){
-                     cancelFriendRequest();
-                 }
-                 if(CURRENT_STATE.equals("request_received")){
-                     acceptFriendRequest();
-                 }
-            }
-        });
+                    if(CURRENT_STATE.equals("not_friends")){
+                        sendFriendRequestToPerson();
+                    }
+                    if(CURRENT_STATE.equals("request_sent")){
+                        cancelFriendRequest();
+                    }
+                    if(CURRENT_STATE.equals("request_received")){
+                        acceptFriendRequest();
+                    }
+                    if(CURRENT_STATE.equals("friends")){
+                        unFriendAFriend();
+                    }
+                }
+            });
+            }else {
+                declineFriendRequestButton.setVisibility(View.INVISIBLE);
+                sendFriendRequestButton.setVisibility(View.INVISIBLE);
+        }
+
+    }
+
+    private void unFriendAFriend() {
+        friendsReference.child(senderUserId).child(receiverUserId).removeValue()
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if(task.isSuccessful()){
+                            friendsReference.child(receiverUserId).child(senderUserId).removeValue()
+                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            if(task.isSuccessful()){
+                                                sendFriendRequestButton.setEnabled(true);
+                                                CURRENT_STATE = "not_friends";
+                                                sendFriendRequestButton.setText("Send Friend Request");
+                                            }
+                                        }
+                                    });
+                        }
+                    }
+                });
     }
 
     private void acceptFriendRequest() {
