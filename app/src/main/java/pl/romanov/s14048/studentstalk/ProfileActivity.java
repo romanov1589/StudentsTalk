@@ -68,6 +68,7 @@ public class ProfileActivity extends AppCompatActivity {
                 profileName.setText(name);
                 profileStatus.setText(status);
                 Picasso.with(ProfileActivity.this).load(image).placeholder(R.drawable.default_profile_image).into(profileImage);
+
                 friendRequestReference.child(senderUserId)
                         .addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
@@ -103,8 +104,34 @@ public class ProfileActivity extends AppCompatActivity {
                  if(CURRENT_STATE.equals("not_friends")){
                      sendFriendRequestToPerson();
                  }
+                 if(CURRENT_STATE.equals("request_sent")){
+                     cancelFriendRequest();
+                 }
             }
         });
+    }
+
+    private void cancelFriendRequest() {
+        friendRequestReference.child(senderUserId).child(receiverUserId).removeValue()
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            friendRequestReference.child(receiverUserId).child(senderUserId)
+                                    .removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if(task.isSuccessful()){
+                                        sendFriendRequestButton.setEnabled(true);
+                                        CURRENT_STATE = "not_friends";
+                                        sendFriendRequestButton.setText("Send Friend Request");
+                                    }
+                                }
+                            });
+
+                        }
+                    }
+                });
     }
 
     private void sendFriendRequestToPerson() {
@@ -120,7 +147,7 @@ public class ProfileActivity extends AppCompatActivity {
                         public void onComplete(@NonNull Task<Void> task) {
                             if(task.isSuccessful()){
                                 sendFriendRequestButton.setEnabled(true);
-                                CURRENT_STATE = "request_send";
+                                CURRENT_STATE = "request_sent";
                                 sendFriendRequestButton.setText("Cancel Friend Request");
                             }
                         }
