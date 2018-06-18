@@ -35,6 +35,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class FriendsFragment extends Fragment {
 
     private RecyclerView myFriendsList;
+
     private DatabaseReference firendsReference;
     private DatabaseReference usersReference;
     private FirebaseAuth mAuth;
