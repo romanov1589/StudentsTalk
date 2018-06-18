@@ -57,9 +57,9 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="30dp"
-        android:background="@color/colorPrimary"
+        android:background="@android:color/background_light"
         android:text="Decline Friend Request"
-        android:textColor="@android:color/background_light"
+        android:textColor="@color/colorPrimary"
         android:textSize="16sp" />
 
 </RelativeLayout>

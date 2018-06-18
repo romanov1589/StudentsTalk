@@ -21,6 +21,7 @@ import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.HashMap;
 
 public class ProfileActivity extends AppCompatActivity {
 
@@ -40,6 +41,8 @@ public class ProfileActivity extends AppCompatActivity {
 
     private DatabaseReference friendsReference;
 
+    private DatabaseReference notificationsReference;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,8 +58,15 @@ public class ProfileActivity extends AppCompatActivity {
 
         friendsReference = FirebaseDatabase.getInstance().getReference().child("Friends");
 
-//        offline
-//        friendsReference.keepSynced(true);
+        //        offline
+//        friendRequestReference.keepSynced(true);
+
+        //notificationsReference = FirebaseDatabase.getInstance().getReference().child("Notifications");
+
+        //offline
+        //notificationsReference.keepSynced(true);
+
+
 
 
         usersReference = FirebaseDatabase.getInstance().getReference().child("Users");
@@ -87,7 +97,6 @@ public class ProfileActivity extends AppCompatActivity {
                         .addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
-                              if(dataSnapshot.exists()){
                                   if(dataSnapshot.hasChild(receiverUserId)){
                                       String reqType = dataSnapshot.child(receiverUserId).child("request_type")
                                               .getValue().toString();
@@ -115,7 +124,7 @@ public class ProfileActivity extends AppCompatActivity {
                                           });
                                       }
                                   }
-                              }
+
                               else{
                                   friendsReference.child(senderUserId)
                                           .addListenerForSingleValueEvent(new ValueEventListener() {
@@ -238,11 +247,11 @@ public class ProfileActivity extends AppCompatActivity {
         SimpleDateFormat currentDate = new SimpleDateFormat("dd-MMMM-yyyy");
         final String saveCurrentDate = currentDate.format(calForDate.getTime());
 
-        friendsReference.child(senderUserId).child(receiverUserId).setValue(saveCurrentDate)
+        friendsReference.child(senderUserId).child(receiverUserId).child("date").setValue(saveCurrentDate)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        friendsReference.child(receiverUserId).child(senderUserId).setValue(saveCurrentDate)
+                        friendsReference.child(receiverUserId).child(senderUserId).child("date").setValue(saveCurrentDate)
                                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void aVoid) {
@@ -312,12 +321,26 @@ public class ProfileActivity extends AppCompatActivity {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             if(task.isSuccessful()){
-                                sendFriendRequestButton.setEnabled(true);
-                                CURRENT_STATE = "request_sent";
-                                sendFriendRequestButton.setText("Cancel Friend Request");
-                                declineFriendRequestButton.setVisibility(View.INVISIBLE);
-                                declineFriendRequestButton.setEnabled(false);
-                            }
+
+//                                HashMap<String, String> notificationsData = new HashMap<>();
+//                                notificationsData.put("from", senderUserId);
+//                                notificationsData.put("type", "request");
+
+//                                notificationsReference.child(receiverUserId).push().setValue(notificationsData)
+//                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+//                                            @Override
+//                                            public void onComplete(@NonNull Task<Void> task) {
+//                                                if(task.isSuccessful()){
+                                                    sendFriendRequestButton.setEnabled(true);
+                                                    CURRENT_STATE = "request_sent";
+                                                    sendFriendRequestButton.setText("Cancel Friend Request");
+
+                                                    declineFriendRequestButton.setVisibility(View.INVISIBLE);
+                                                    declineFriendRequestButton.setEnabled(false);
+                                                }
+//                                            }
+//                                        });
+//                            }
                         }
                     });
                 }

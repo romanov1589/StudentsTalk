@@ -23,6 +23,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Logger;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 public class RegisterActivity extends AppCompatActivity {
 
@@ -83,10 +84,14 @@ public class RegisterActivity extends AppCompatActivity {
             loadingBar.setMessage("Please wait, while we are creating account");
             loadingBar.show();
 
-            mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+            mAuth.createUserWithEmailAndPassword(email, password)
+                    .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     if(task.isSuccessful()){
+
+                        String deviceToken = FirebaseInstanceId.getInstance().getToken();
+
                         String currentUserId = mAuth.getCurrentUser().getUid();
                         storeUserDefaultDataReference = FirebaseDatabase.getInstance().
                                 getReference().child("Users").child(currentUserId);
@@ -94,6 +99,7 @@ public class RegisterActivity extends AppCompatActivity {
                         storeUserDefaultDataReference.child("user_name").setValue(name);
                         storeUserDefaultDataReference.child("user_status").setValue("Hey there, I am using StudentsTalk");
                         storeUserDefaultDataReference.child("user_image").setValue("default_profile");
+                        storeUserDefaultDataReference.child("device_token").setValue(deviceToken);
                         storeUserDefaultDataReference.child("user_thumb_image").setValue("default_image")
                                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                                     @Override
