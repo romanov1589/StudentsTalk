@@ -2,23 +2,36 @@ package pl.romanov.s14048.studentstalk;
 
 
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -36,6 +49,9 @@ public class RequestsFragment extends Fragment {
     String onlineUserId;
 
     private DatabaseReference usersReference;
+
+    private DatabaseReference friendsDatabaseRef;
+    private DatabaseReference friendsReqDatabaseReq;
 
 
 
@@ -56,6 +72,9 @@ public class RequestsFragment extends Fragment {
 
         friendsRequestsReference = FirebaseDatabase.getInstance().getReference().child("Friend_Requests").child(onlineUserId);
         usersReference = FirebaseDatabase.getInstance().getReference().child("Users");
+
+        friendsDatabaseRef = FirebaseDatabase.getInstance().getReference().child("Friends");
+        friendsReqDatabaseReq = FirebaseDatabase.getInstance().getReference().child("Friend_Requests");
 
 
         myRequestsList.setHasFixedSize(true);
@@ -85,17 +104,173 @@ public class RequestsFragment extends Fragment {
         ) {
             @Override
             protected void populateViewHolder(final RequestViewHolder viewHolder, Requests model, int position) {
+
                 final String listUsersId = getRef(position).getKey();
-                usersReference.child(listUsersId).addValueEventListener(new ValueEventListener() {
+                DatabaseReference getTypeRef = getRef(position).child("request_type").getRef();
+
+                getTypeRef.addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        final String userName = dataSnapshot.child("user_name").getValue().toString();
-                        final String thumbImage = dataSnapshot.child("user_thumb_image").getValue().toString();
-                        final String userStatus = dataSnapshot.child("user_status").getValue().toString();
+                        if(dataSnapshot.exists()){
+                            String requestType = dataSnapshot.getValue().toString();
+                            if(requestType.equals("received")){
+                                usersReference.child(listUsersId).addValueEventListener(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                        final String userName = dataSnapshot.child("user_name").getValue().toString();
+                                        final String thumbImage = dataSnapshot.child("user_thumb_image").getValue().toString();
+                                        final String userStatus = dataSnapshot.child("user_status").getValue().toString();
 
-                        viewHolder.setUserName(userName);
-                        viewHolder.setThumbUserImage(thumbImage, getContext());
-                        viewHolder.setUserStatus(userStatus);
+                                        viewHolder.setUserName(userName);
+                                        viewHolder.setThumbUserImage(thumbImage, getContext());
+                                        viewHolder.setUserStatus(userStatus);
+
+                                        viewHolder.mView.setOnClickListener(new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View view) {
+
+                                                CharSequence options[] = new CharSequence[]{
+                                                        "Accept Friend Request",
+                                                        "Cancel Friend Request"
+                                                };
+                                                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                                                builder.setTitle("Friend Request Options");
+                                                builder.setItems(options, new DialogInterface.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(DialogInterface dialogInterface, int posiotion) {
+                                                        if(posiotion == 0){
+                                                            Calendar calForDate = Calendar.getInstance();
+                                                            SimpleDateFormat currentDate = new SimpleDateFormat("dd-MMMM-yyyy");
+                                                            final String saveCurrentDate = currentDate.format(calForDate.getTime());
+
+                                                            friendsDatabaseRef.child(onlineUserId).child(listUsersId).child("date").setValue(saveCurrentDate)
+                                                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                        @Override
+                                                                        public void onSuccess(Void aVoid) {
+                                                                            friendsDatabaseRef.child(listUsersId).child(onlineUserId).child("date").setValue(saveCurrentDate)
+                                                                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                                        @Override
+                                                                                        public void onSuccess(Void aVoid) {
+                                                                                            friendsReqDatabaseReq.child(onlineUserId).child(listUsersId).removeValue()
+                                                                                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                                                                        @Override
+                                                                                                        public void onComplete(@NonNull Task<Void> task) {
+                                                                                                            if (task.isSuccessful()) {
+                                                                                                                friendsReqDatabaseReq.child(listUsersId).child(onlineUserId)
+                                                                                                                        .removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                                                                                    @Override
+                                                                                                                    public void onComplete(@NonNull Task<Void> task) {
+                                                                                                                        if(task.isSuccessful()){
+                                                                                                                            Toast.makeText(getContext(), "Friend request accepted",
+                                                                                                                                    Toast.LENGTH_SHORT).show();
+                                                                                                                        }
+                                                                                                                    }
+                                                                                                                });
+
+                                                                                                            }
+                                                                                                        }
+                                                                                                    });
+                                                                                        }
+                                                                                    });
+                                                                        }
+                                                                    });
+                                                        }
+                                                        if(posiotion == 1){
+                                                            friendsReqDatabaseReq.child(onlineUserId).child(listUsersId).removeValue()
+                                                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                                        @Override
+                                                                        public void onComplete(@NonNull Task<Void> task) {
+                                                                            if (task.isSuccessful()) {
+                                                                                friendsReqDatabaseReq.child(listUsersId).child(onlineUserId)
+                                                                                        .removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                                                    @Override
+                                                                                    public void onComplete(@NonNull Task<Void> task) {
+                                                                                        if(task.isSuccessful()){
+                                                                                            Toast.makeText(getContext(), "Friend request cancelled", Toast.LENGTH_SHORT).show();
+                                                                                        }
+                                                                                    }
+                                                                                });
+
+                                                                            }
+                                                                        }
+                                                                    });
+                                                        }
+                                                    }
+                                                });
+
+                                                builder.show();
+                                            }
+                                        });
+                                    }
+
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
+
+                                    }
+                                });
+                            }
+                            else if(requestType.equals("sent")){
+                                Button reqSentBtn = viewHolder.mView.findViewById(R.id.request_accept_btn);
+                                reqSentBtn.setText("Req Sent");
+                                viewHolder.mView.findViewById(R.id.request_decline_btn).setVisibility(View.INVISIBLE);
+
+                                usersReference.child(listUsersId).addValueEventListener(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                        final String userName = dataSnapshot.child("user_name").getValue().toString();
+                                        final String thumbImage = dataSnapshot.child("user_thumb_image").getValue().toString();
+                                        final String userStatus = dataSnapshot.child("user_status").getValue().toString();
+
+                                        viewHolder.setUserName(userName);
+                                        viewHolder.setThumbUserImage(thumbImage, getContext());
+                                        viewHolder.setUserStatus(userStatus);
+
+                                        viewHolder.mView.setOnClickListener(new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View view) {
+                                                CharSequence options[] = new CharSequence[]{
+                                                        "Cancel Friend Request"
+                                                };
+                                                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                                                builder.setTitle("Friend Request Sent");
+                                                builder.setItems(options, new DialogInterface.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(DialogInterface dialogInterface, int posiotion) {
+                                                        if(posiotion == 0){
+                                                            friendsReqDatabaseReq.child(onlineUserId).child(listUsersId).removeValue()
+                                                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                                        @Override
+                                                                        public void onComplete(@NonNull Task<Void> task) {
+                                                                            if (task.isSuccessful()) {
+                                                                                friendsReqDatabaseReq.child(listUsersId).child(onlineUserId)
+                                                                                        .removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                                                    @Override
+                                                                                    public void onComplete(@NonNull Task<Void> task) {
+                                                                                        if(task.isSuccessful()){
+                                                                                            Toast.makeText(getContext(), "Friend request cancelled", Toast.LENGTH_SHORT).show();
+                                                                                        }
+                                                                                    }
+                                                                                });
+
+                                                                            }
+                                                                        }
+                                                                    });
+                                                        }
+                                                    }
+                                                });
+
+                                                builder.show();
+                                            }
+                                        });
+                                    }
+
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
+
+                                    }
+                                });
+                            }
+                        }
                     }
 
                     @Override
@@ -103,6 +278,7 @@ public class RequestsFragment extends Fragment {
 
                     }
                 });
+
             }
         };
         myRequestsList.setAdapter(firebaseRecyclerAdapter);
