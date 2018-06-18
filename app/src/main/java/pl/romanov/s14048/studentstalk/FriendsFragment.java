@@ -2,8 +2,11 @@ package pl.romanov.s14048.studentstalk;
 
 
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -76,11 +79,11 @@ public class FriendsFragment extends Fragment {
             protected void populateViewHolder(final FriendsViewHolder viewHolder, Friends model, int position) {
                       viewHolder.setDate(model.getDate());
 
-                      String listUserId = getRef(position).getKey();
+                      final String listUserId = getRef(position).getKey();
                       usersReference.child(listUserId).addValueEventListener(new ValueEventListener() {
                           @Override
                           public void onDataChange(DataSnapshot dataSnapshot) {
-                                String userName = dataSnapshot.child("user_name").getValue().toString();
+                                final String userName = dataSnapshot.child("user_name").getValue().toString();
                                 String thumbImage = dataSnapshot.child("user_thumb_image").getValue().toString();
 
                                 if(dataSnapshot.hasChild("online")){
@@ -90,6 +93,36 @@ public class FriendsFragment extends Fragment {
 
                                 viewHolder.setUserName(userName);
                                 viewHolder.setThumbImage(thumbImage, getContext());
+
+                                viewHolder.mView.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        CharSequence options[] = new CharSequence[]{
+                                                userName + "'s Profile",
+                                                "Send Message"
+                                        };
+                                        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                                        builder.setTitle("Select Options");
+                                        builder.setItems(options, new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialogInterface, int posiotion) {
+                                                if(posiotion == 0){
+                                                    Intent profileIntent = new Intent(getContext(),ProfileActivity.class);
+                                                    profileIntent.putExtra("visit_user_id", listUserId);
+                                                    startActivity(profileIntent);
+                                                }
+                                                if(posiotion == 1){
+                                                    Intent chatIntent = new Intent(getContext(),ChatActivity.class);
+                                                    chatIntent.putExtra("visit_user_id", listUserId);
+                                                    chatIntent.putExtra("user_name", userName);
+                                                    startActivity(chatIntent);
+                                                }
+                                            }
+                                        });
+
+                                        builder.show();
+                                    }
+                                });
 
 
 
