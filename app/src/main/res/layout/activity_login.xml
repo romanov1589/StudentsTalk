@@ -47,5 +47,6 @@
         android:text="Sign in"
         android:textColor="@android:color/background_light"
         android:textSize="20sp"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        />
 </RelativeLayout>

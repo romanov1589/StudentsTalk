@@ -55,6 +55,8 @@ public class RequestsFragment extends Fragment {
 
 
 
+
+
     public RequestsFragment() {
         // Required empty public constructor
     }
@@ -87,6 +89,9 @@ public class RequestsFragment extends Fragment {
 
 
 
+
+
+
         return myMainView;
     }
 
@@ -114,6 +119,8 @@ public class RequestsFragment extends Fragment {
                         if(dataSnapshot.exists()){
                             String requestType = dataSnapshot.getValue().toString();
                             if(requestType.equals("received")){
+                                TextView textView = viewHolder.mView.findViewById(R.id.reqest_text_view);
+                                textView.setText("Please accept or decline request");
                                 usersReference.child(listUsersId).addValueEventListener(new ValueEventListener() {
                                     @Override
                                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -210,9 +217,11 @@ public class RequestsFragment extends Fragment {
                                 });
                             }
                             else if(requestType.equals("sent")){
-                                Button reqSentBtn = viewHolder.mView.findViewById(R.id.request_accept_btn);
-                                reqSentBtn.setText("Req Sent");
-                                viewHolder.mView.findViewById(R.id.request_decline_btn).setVisibility(View.INVISIBLE);
+//                                Button reqSentBtn = viewHolder.mView.findViewById(R.id.request_accept_btn);
+//                                reqSentBtn.setText("Req Sent");
+//                                viewHolder.mView.findViewById(R.id.request_decline_btn).setVisibility(View.INVISIBLE);
+                                    TextView textView = viewHolder.mView.findViewById(R.id.reqest_text_view);
+                                    textView.setText("Request sent");
 
                                 usersReference.child(listUsersId).addValueEventListener(new ValueEventListener() {
                                     @Override
