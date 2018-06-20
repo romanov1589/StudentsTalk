@@ -34,7 +34,8 @@ public class WelcomeActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         if(isOnline()){
-            checkWifi();
+            startMainActivity();
+            //checkWifi();
         }else{
             Toast.makeText(this, "Please check your internet connection and try again",
                     Toast.LENGTH_SHORT).show();
@@ -59,7 +60,7 @@ public class WelcomeActivity extends AppCompatActivity {
         WifiInfo wifiInfo = wifiManager.getConnectionInfo();
             String wifiSSID = wifiInfo.getSSID();
             Toast.makeText(this, "Connected to" + wifiSSID, Toast.LENGTH_SHORT).show();
-            if("\"eduroam\"".equals(wifiSSID) || "\"PJWSTK\"".equals(wifiSSID)) {
+            if("\"eduroam\"".equals(wifiSSID) || "\"PJWSTK\"".equals(wifiSSID) || "\"Tech_D0044190\"".equals(wifiSSID)) {
                 startMainActivity();
             }else{
                 Toast.makeText(this, "You are not in Academy. Please connect to eduoram or PJWSTK (WI-FI)", Toast.LENGTH_SHORT).show();

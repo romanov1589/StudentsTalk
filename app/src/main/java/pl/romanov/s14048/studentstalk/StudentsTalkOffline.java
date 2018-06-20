@@ -26,13 +26,6 @@ public class StudentsTalkOffline extends Application {
 
         FirebaseDatabase .getInstance().setPersistenceEnabled(true);
 
-        //load picture Offline - Picasso
-//        Picasso.Builder builder = new Picasso.Builder(this);
-//        builder.downloader(new OkHttpDownloader(this, Integer.MAX_VALUE));
-//        Picasso built = builder.build();
-//        built.setIndicatorsEnabled(true);
-//        built.setLoggingEnabled(true);
-//        Picasso.setSingletonInstance(built);
 
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();

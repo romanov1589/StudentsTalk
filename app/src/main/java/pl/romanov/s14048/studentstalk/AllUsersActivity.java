@@ -106,19 +106,6 @@ public class AllUsersActivity extends AppCompatActivity {
             //online
             Picasso.with(ctx).load(user_thumb_image).placeholder(R.drawable.default_profile_image).into(thumb_image);
 
-            //offline
-//            Picasso.with(ctx).load(user_thumb_image).networkPolicy(NetworkPolicy.OFFLINE)
-//                    .placeholder(R.drawable.default_profile_image).into(thumb_image, new Callback() {
-//                @Override
-//                public void onSuccess() {
-//
-//                }
-//
-//                @Override
-//                public void onError() {
-//                    Picasso.with(ctx).load(user_thumb_image).placeholder(R.drawable.default_profile_image).into(thumb_image);
-//                }
-//            });
         }
     }
 }

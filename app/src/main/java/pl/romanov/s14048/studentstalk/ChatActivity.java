@@ -139,12 +139,17 @@ public class ChatActivity extends AppCompatActivity {
 
                 if(online.equals("true")){
                     userLastSeen.setText("Online");
+                    return;
                 }else{
                     LastSeenTime getTime = new LastSeenTime();
                     long lastSeen = Long.parseLong(online);
-                    String lastSeenDisplayTime = getTime.getTimeAgo(lastSeen, getApplicationContext()).toString();
+                        try {
+                            String lastSeenDisplayTime = getTime.getTimeAgo(lastSeen, getApplicationContext()).toString();
+                            userLastSeen.setText(lastSeenDisplayTime);
+                        }catch (NullPointerException e){
+                            e.printStackTrace();
+                        }
 
-                    userLastSeen.setText(lastSeenDisplayTime);
                 }
             }
 

@@ -4,15 +4,14 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.common.data.BitmapTeleporter;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -24,8 +23,6 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.squareup.picasso.Callback;
-import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
@@ -70,9 +67,6 @@ public class SettingsActivity extends AppCompatActivity {
 
         getUserDataReference = FirebaseDatabase.getInstance().getReference().child("Users").child(onlineUserId);
 
-//        offline
-//        getUserDataReference.keepSynced(true);
-
         storeProfileImageStorageRef = FirebaseStorage.getInstance().getReference().child("Profile_Images");
         thumbImageRef = FirebaseStorage.getInstance().getReference().child("Thumb_Images");
 
@@ -96,26 +90,11 @@ public class SettingsActivity extends AppCompatActivity {
                 settingsDisplayName.setText(name);
                 settingsDisplayStatus.setText(status);
 
-                if(!image.equals("default_profile")){
-//                      online
+                if (!image.equals("default_profile")) {
+
                     Picasso.with(SettingsActivity.this).load(image).placeholder(R.drawable.default_profile_image)
                             .into(settingsDispayProfileImage);
 
-                    //offline
-//                    Picasso.with(SettingsActivity.this).load(image).networkPolicy(NetworkPolicy.OFFLINE)
-//                            .placeholder(R.drawable.default_profile_image)
-//                            .into(settingsDispayProfileImage, new Callback() {
-//                                @Override
-//                                public void onSuccess() {
-//
-//                                }
-//
-//                                @Override
-//                                public void onError() {
-//                                    Picasso.with(SettingsActivity.this).load(image).placeholder(R.drawable.default_profile_image)
-//                                    .into(settingsDispayProfileImage);
-//                                }
-//                            });
                 }
 
             }
@@ -153,11 +132,11 @@ public class SettingsActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == galleryPick && resultCode==RESULT_OK && data!=null){
+        if (requestCode == galleryPick && resultCode == RESULT_OK && data != null) {
             Uri imageUri = data.getData();
             CropImage.activity()
                     .setGuidelines(CropImageView.Guidelines.ON)
-                    .setAspectRatio(1,1)
+                    .setAspectRatio(1, 1)
                     .start(this);
         }
         if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
@@ -170,13 +149,13 @@ public class SettingsActivity extends AppCompatActivity {
                 Uri resultUri = result.getUri();
 
                 File thumbFilePathUri = new File(resultUri.getPath());
-                try{
+                try {
                     thumbBitmap = new Compressor(this)
                             .setMaxWidth(200)
                             .setMaxHeight(200)
                             .setQuality(50)
                             .compressToBitmap(thumbFilePathUri);
-                }catch (IOException e){
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
                 ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -193,7 +172,7 @@ public class SettingsActivity extends AppCompatActivity {
                 filePath.putFile(resultUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                        if(task.isSuccessful()){
+                        if (task.isSuccessful()) {
                             Toast.makeText(SettingsActivity.this, "Saving your profile Image to Firebase Storage...",
                                     Toast.LENGTH_LONG).show();
 
@@ -204,7 +183,7 @@ public class SettingsActivity extends AppCompatActivity {
                                 @Override
                                 public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> thumbTask) {
                                     String thumbDownloadUrl = thumbTask.getResult().getDownloadUrl().toString();
-                                    if(thumbTask.isSuccessful()){
+                                    if (thumbTask.isSuccessful()) {
                                         Map updateUserData = new HashMap();
                                         updateUserData.put("user_image", downloadUrl);
                                         updateUserData.put("user_thumb_image", thumbDownloadUrl);
@@ -221,7 +200,7 @@ public class SettingsActivity extends AppCompatActivity {
                                     }
                                 }
                             });
-                        }else{
+                        } else {
                             Toast.makeText(SettingsActivity.this, "Error ocured, while uploading your Profile Pic",
                                     Toast.LENGTH_SHORT).show();
                             loadingBar.dismiss();
