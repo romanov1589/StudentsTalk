@@ -1,5 +1,6 @@
 package pl.romanov.s14048.studentstalk;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -74,6 +75,8 @@ public class ChatActivity extends AppCompatActivity {
 
     private StorageReference messageImageStoreRef;
 
+    private ProgressDialog loadingBar;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -89,6 +92,8 @@ public class ChatActivity extends AppCompatActivity {
 
         chatToolBar = (Toolbar) findViewById(R.id.chat_bar_layout);
         setSupportActionBar(chatToolBar);
+
+        loadingBar = new ProgressDialog(this);
 
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
@@ -176,14 +181,18 @@ public class ChatActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if(requestCode == galleryPick && resultCode==RESULT_OK && data!=null){
+            loadingBar.setTitle("Sending chat image");
+            loadingBar.setMessage("Please wait...");
+            loadingBar.show();
+
             Uri imageUri = data.getData();
 
-            String messageSenderRef = "Messages/" + messageSenderId + "/" + messageReceiverId;
-            String messageReceiverRef = "Messages/" + messageReceiverId + "/" + messageSenderId;
+            final String messageSenderRef = "Messages/" + messageSenderId + "/" + messageReceiverId;
+            final String messageReceiverRef = "Messages/" + messageReceiverId + "/" + messageSenderId;
 
             DatabaseReference userMessageKey = rootRef.child("Messages").child(messageSenderId)
                     .child(messageReceiverId).push();
-            String messagePushId = userMessageKey.getKey();
+            final String messagePushId = userMessageKey.getKey();
 
             StorageReference filePath = messageImageStoreRef.child(messagePushId + ".jpg");
 
@@ -191,7 +200,40 @@ public class ChatActivity extends AppCompatActivity {
                 @Override
                 public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
                     if(task.isSuccessful()){
+
+                        final String downloadUrl = task.getResult().getDownloadUrl().toString();
+
+
+                        Map messageTextBody = new HashMap();
+                        messageTextBody.put("message", downloadUrl);
+                        messageTextBody.put("seen", false);
+                        messageTextBody.put("type", "image");
+                        messageTextBody.put("time", ServerValue.TIMESTAMP);
+                        messageTextBody.put("from", messageSenderId);
+
+                        Map messageBodyDetails = new HashMap();
+
+                        messageBodyDetails.put(messageSenderRef + "/" + messagePushId, messageTextBody);
+                        messageBodyDetails.put(messageReceiverRef + "/" + messagePushId, messageTextBody);
+
+                        rootRef.updateChildren(messageBodyDetails, new DatabaseReference.CompletionListener() {
+                            @Override
+                            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                                if(databaseError!=null){
+                                    Log.d("Chat_Log", databaseError.getMessage().toString());
+
+                                }
+                                inputMessageText.setText("");
+                                loadingBar.dismiss();
+                            }
+                        });
+
                         Toast.makeText(ChatActivity.this, "Picture sent Successfully", Toast.LENGTH_SHORT).show();
+                        loadingBar.dismiss();
+
+                    }else{
+                        Toast.makeText(ChatActivity.this, "Picture not sent. Try again, please", Toast.LENGTH_SHORT).show();
+                        loadingBar.dismiss();
                     }
                 }
             });
