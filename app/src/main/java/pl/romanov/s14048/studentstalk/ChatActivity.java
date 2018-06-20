@@ -211,6 +211,7 @@ public class ChatActivity extends AppCompatActivity {
                     inputMessageText.setText("");
                 }
             });
+            linearLayoutManager.scrollToPosition(messageList.size() -1);
         }
     }
 }

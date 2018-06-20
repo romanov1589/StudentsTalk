@@ -97,7 +97,7 @@ public class RegisterActivity extends AppCompatActivity {
                                 getReference().child("Users").child(currentUserId);
 
                         storeUserDefaultDataReference.child("user_name").setValue(name);
-                        storeUserDefaultDataReference.child("user_status").setValue("Hey there, I am using StudentsTalk");
+                        storeUserDefaultDataReference.child("user_status").setValue("Please write your students id here (sXXXXX)");
                         storeUserDefaultDataReference.child("user_image").setValue("default_profile");
                         storeUserDefaultDataReference.child("device_token").setValue(deviceToken);
                         storeUserDefaultDataReference.child("user_thumb_image").setValue("default_image")
